@@ -1,0 +1,25 @@
+.cabecalho{
+  text-align: center;
+   padding: 0.5em;
+   color: #FFF;
+}
+.container {
+  width: 62vw;
+  margin: 3.5em auto;
+  gap: 16px;
+}
+
+.conteudo {
+  display: flex;
+}
+
+.conteudo-principal {
+  flex-grow: 2;
+  padding: 1em;
+}
+
+.rodape {
+  text-align: center;
+  padding: 0.5em;
+  color: #FFF;
+}
