@@ -2,16 +2,15 @@
 # Gerenciador de Projetos
 Este é um projeto de gerenciamento de projetos desenvolvido em React e Supabase.
 
-![Badge de Licença](https://img.shields.io/github/license/alura-cursos/android-com-kotlin-personalizando-ui)
-![Status do Projeto](https://img.shields.io/badge/status-em--desenvolvimento-yellow)
+
 
 <p align="center">
-  <img src="tela-01.png" alt="Banner do CodeConnect" width="600"/>
+  <img src="tela-01.png" alt="Banner do Gerenciado de Projetos" width="600"/>
 </p>
 
 > Uma rede social para desenvolvedores compartilharem seus projetos e conectarem-se com outros profissionais da área.
 
-Este projeto foi desenvolvido como parte do curso de React e Supabase da Alura, com o objetivo de criar uma aplicação full-stack utilizando tecnologias modernas.
+Este projeto foi desenvolvido como parte do curso de React e Supabase, com o objetivo de criar uma aplicação full-stack utilizando tecnologias modernas.
 
 ---
 
