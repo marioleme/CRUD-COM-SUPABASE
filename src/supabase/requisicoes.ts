@@ -4,14 +4,14 @@ import { supabase } from "./supabaseClient";
 
 export function buscarPostagens() {
   return supabase
-    .from("Publicação")
+    .from("postagens")
     .select("*")
     .then(({ data, error }) => {
       if (error) {
         console.error("Erro ao buscar postagens", error.message);
         return [];
       }
-
+      console.log("Postagens recebidas do Supabase:", data);
       return data;
     });
 }
@@ -29,10 +29,10 @@ export function criarPostagem(postagem: ProjetoAntesDoSupabase) {
         ...postagem,
         imagem: urlImagem,
       };
-      console.log("imagem", urlImagem);
+      console.log("Enviando postagem para o Supabase:", postagemComImagem);
 
       return supabase
-        .from("Publicação")
+        .from("postagens")
         .insert([postagemComImagem])
         .then(({ data, error }) => {
           if (error) {
@@ -74,7 +74,7 @@ export function enviarImagem(arquivo: File) {
 
 export function buscarPostagemPorId(id: string) {
   return supabase
-    .from("Publicação")
+    .from("postagens")
     .select("*")
     .eq("id", id)
     .single()
@@ -91,7 +91,7 @@ export function buscarPostagemPorId(id: string) {
 export function atualizarPostagem(id: string, novosDados: Projeto) {
   document.querySelector(".formulario-projeto")?.classList.add("enviando");
   return supabase
-    .from("Publicação")
+    .from("postagens")
     .update(novosDados)
     .eq("id", id)
     .then(({ data, error }) => {
@@ -109,7 +109,7 @@ export function atualizarPostagem(id: string, novosDados: Projeto) {
 
 export function deletarPostagem(id: string) {
   return supabase
-    .from("Publicação")
+    .from("postagens")
     .delete()
     .eq("id", id)
     .then(({ data, error }) => {

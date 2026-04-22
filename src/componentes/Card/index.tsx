@@ -6,10 +6,11 @@ type CardProps = {
   imagemUrl: string;
   titulo: string;
   resumo: string;
+  tags?: string[];
   deletar: (id: string) => void;
 };
 
-export default function Card({ id, imagemUrl, titulo, resumo, deletar }: CardProps) {
+export default function Card({ id, imagemUrl, titulo, resumo, tags, deletar }: CardProps) {
   return (
     <article className="card" id={id}>
       <div className="card__imagem">
@@ -19,6 +20,15 @@ export default function Card({ id, imagemUrl, titulo, resumo, deletar }: CardPro
         <div className="conteudo__texto">
           <h3>{titulo}</h3>
           <p>{resumo}</p>
+          {tags && tags.length > 0 && (
+            <div className="card__tags">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag-badge">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="conteudo__botoes">

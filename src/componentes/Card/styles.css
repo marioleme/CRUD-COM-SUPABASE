@@ -80,3 +80,19 @@
   font-size: 14px;
   cursor: pointer;
 }
+
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.tag-badge {
+  background-color: var(--cinza-medio, #555);
+  color: var(--cinza-claro, #fff);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+

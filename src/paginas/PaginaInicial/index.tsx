@@ -30,6 +30,7 @@ export default function PaginaInicial() {
               imagemUrl={postagem.imagem}
               titulo={postagem.nome}
               resumo={postagem.descricao}
+              tags={postagem.tags}
               deletar={deletar}
             />
           </li>

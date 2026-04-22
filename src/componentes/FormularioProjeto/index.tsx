@@ -36,7 +36,11 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    onSubmit({ nome, descricao, imagem, tags });
+    let tagsFinais = [...tags];
+    if (novaTag.trim() !== "" && !tags.includes(novaTag.trim())) {
+      tagsFinais.push(novaTag.trim());
+    }
+    onSubmit({ nome, descricao, imagem, tags: tagsFinais });
   }
 
   return (
@@ -81,13 +85,18 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
 
         <label>
           Tags
-          <input
-            type="text"
-            placeholder="Adicionar tag"
-            value={novaTag}
-            onChange={(e) => setNovaTag(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAdicionarTag())}
-          />
+          <div style={{ display: "flex", gap: "8px" }}>
+            <input
+              type="text"
+              placeholder="Adicionar tag"
+              value={novaTag}
+              onChange={(e) => setNovaTag(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAdicionarTag())}
+            />
+            <button type="button" onClick={handleAdicionarTag} className="botao-adicionar-tag" style={{ padding: "0 16px", borderRadius: "4px", backgroundColor: "var(--verde-destaque)", color: "var(--cinza-escuro)", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+              +
+            </button>
+          </div>
         </label>
 
         <div className="tags">
