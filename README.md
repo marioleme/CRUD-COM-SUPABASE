@@ -1,3 +1,4 @@
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 
 # Gerenciador de Projetos
 Este é um projeto de gerenciamento de projetos desenvolvido em React e Supabase.
