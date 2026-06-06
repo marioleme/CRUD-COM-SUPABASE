@@ -54,6 +54,23 @@
   line-height: 23px;
 }
 
+.card__tags {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card__tags li {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: var(--cinza-medio);
+  color: var(--cinza-escuro);
+}
+
 .conteudo__botoes {
   display: flex;
   justify-content: space-between;

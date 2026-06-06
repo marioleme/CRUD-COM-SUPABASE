@@ -10,15 +10,17 @@ export default function EditarPublicacao() {
   const { id } = useParams();
 
   useEffect(() => {
-    if (id) {
-      buscarPostagemPorId(id).then((projetoBuscado) => {
-        setProjeto(projetoBuscado);
-      });
-    }
+    if (!id) return;
+    setProjeto(undefined);
+    buscarPostagemPorId(id).then((projetoBuscado) => {
+      setProjeto(projetoBuscado ?? undefined);
+    });
   }, [id]);
 
   function atualizarProjeto(projetoEnviado: ProjetoAntesDoSupabase) {
-    if (!id || !projeto) return;
+    if (!projeto) return;
+
+    const idAlvo = projeto.id;
 
     if (projetoEnviado.imagem instanceof File) {
       enviarImagem(projetoEnviado.imagem).then((urlDaImagem) => {
@@ -27,22 +29,22 @@ export default function EditarPublicacao() {
           return;
         }
 
-        const projetoAtualizado = {
+        const projetoAtualizado: Projeto = {
           ...projetoEnviado,
-          id,
+          id: idAlvo,
           imagem: urlDaImagem,
         };
 
-        atualizarPostagem(id, projetoAtualizado);
+        atualizarPostagem(idAlvo, projetoAtualizado);
       });
     } else {
-      const projetoAtualizado = {
+      const projetoAtualizado: Projeto = {
         ...projetoEnviado,
-        id,
+        id: idAlvo,
         imagem: projeto.imagem,
       };
 
-      atualizarPostagem(id, projetoAtualizado);
+      atualizarPostagem(idAlvo, projetoAtualizado);
     }
   }
 

@@ -32,6 +32,20 @@ form.formulario-projeto.enviando::after {
   border-radius: 8px;
 }
 
+.form-sem-imagem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  max-width: 486px;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px dashed var(--cinza-medio);
+  color: #bbb;
+  font-size: 14px;
+  text-align: center;
+}
+
 .formulario-projeto form,
 .formulario-projeto > div {
   flex: 1;

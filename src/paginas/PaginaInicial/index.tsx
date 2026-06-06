@@ -13,9 +13,15 @@ export default function PaginaInicial() {
   }, []);
 
   function deletar(id: string) {
-    deletarPostagem(id).then(() => {
+    deletarPostagem(id).then((apagou) => {
+      if (!apagou) {
+        window.alert(
+          "O post não foi apagado na base de dados (muito provável: falta uma policy RLS de DELETE na tabela, ou o id não existe). Vê a consola (F12) para a mensagem completa.",
+        );
+        return;
+      }
       setPostagens((postagensAnteriores) =>
-        postagensAnteriores.filter((postagem) => postagem.id !== id)
+        postagensAnteriores.filter((postagem) => postagem.id !== id),
       );
     });
   }
@@ -30,6 +36,7 @@ export default function PaginaInicial() {
               imagemUrl={postagem.imagem}
               titulo={postagem.nome}
               resumo={postagem.descricao}
+              tags={postagem.tags}
               deletar={deletar}
             />
           </li>

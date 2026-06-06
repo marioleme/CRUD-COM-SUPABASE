@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import "./styles.css";
 import { Projeto } from "../../tipagem/Projeto";
 import { ProjetoAntesDoSupabase } from "../../tipagem/ProjetoAntesDoSupabase";
@@ -9,11 +9,47 @@ type FormularioProjetoProps = {
   onSubmit: (projeto: ProjetoAntesDoSupabase) => void;
 };
 
+/** O PostgREST pode devolver tags como array, string JSON ou texto separado por vírgulas. */
+function normalizarTags(valor: unknown): string[] {
+  if (Array.isArray(valor)) {
+    return valor.filter((t): t is string => typeof t === "string").map((t) => t.trim()).filter(Boolean);
+  }
+  if (typeof valor === "string") {
+    const trimmed = valor.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((t): t is string => typeof t === "string")
+          .map((t) => t.trim())
+          .filter(Boolean);
+      }
+    } catch {
+      /* não é JSON */
+    }
+    return trimmed
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export default function FormularioProjeto({ projetoInicial, onSubmit }: FormularioProjetoProps) {
   const [nome, setNome] = useState(projetoInicial?.nome || "");
   const [descricao, setDescricao] = useState(projetoInicial?.descricao || "");
   const [imagem, setImagem] = useState<File | null>(null);
-  const [tags, setTags] = useState<string[]>(projetoInicial?.tags || []);
+  const [tags, setTags] = useState<string[]>(() => normalizarTags(projetoInicial?.tags));
+
+  /* Sincroniza só quando mudamos de registro (id), evitando reset ao trocar só a referência do objeto. */
+  useEffect(() => {
+    if (!projetoInicial) return;
+    setNome(projetoInicial.nome || "");
+    setDescricao(projetoInicial.descricao || "");
+    setTags(normalizarTags(projetoInicial.tags));
+    setImagem(null);
+  }, [projetoInicial?.id]);
   const [novaTag, setNovaTag] = useState("");
   const imagemProjetoInicial = projetoInicial?.imagem || null;
 
@@ -48,9 +84,12 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
         <div>
           {imagemProjetoInicial ? (
             <img src={imagemProjetoInicial} alt="Preview" className="form-imagem" />
+          ) : projetoInicial ? (
+            <span className="form-sem-imagem">Sem imagem neste projeto</span>
           ) : (
-        
-            <span>Carregando</span>
+            <span className="form-sem-imagem">
+              Escolhe uma imagem para ver a pré-visualização
+            </span>
           )}
         </div>
 
