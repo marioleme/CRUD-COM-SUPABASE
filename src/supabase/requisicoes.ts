@@ -2,24 +2,28 @@ import { Projeto } from "../tipagem/Projeto";
 import { ProjetoAntesDoSupabase } from "../tipagem/ProjetoAntesDoSupabase";
 import { supabase } from "./supabaseClient";
 
-const TABLE_NAME = import.meta.env.VITE_SUPABASE_TABLE || "posts";
-const BUCKET_NAME = import.meta.env.VITE_SUPABASE_BUCKET || "post-images";
+const TABLE_NAME = import.meta.env.VITE_SUPABASE_TABLE || "postagens";
+const BUCKET_NAME = import.meta.env.VITE_SUPABASE_BUCKET || "imagens";
 
-function alertaErroSupabase(contexto: string, error: { message?: string; hint?: string; details?: string }) {
-  const texto = [error.message, error.hint, error.details].filter(Boolean).join("\n\n");
+function alertaErroSupabase(
+  contexto: string,
+  error: { message?: string; hint?: string; details?: string },
+) {
+  const texto = [error.message, error.hint, error.details]
+    .filter(Boolean)
+    .join("\n\n");
   window.alert(`${contexto}\n\n${texto || "Erro desconhecido."}`);
 }
 
-/** Colunas da tabela `posts` no Supabase (schema típico do README + coluna `descricao`). */
-type LinhaPostsSupabase = {
+type LinhaPostagemSupabase = {
   id?: number | string;
-  created_at?: string;
+  nome?: string | null;
+  descricao?: string | null;
+  imagem?: string | null;
+  tags?: unknown;
   title?: string | null;
   content?: string | null;
   image_url?: string | null;
-  author_id?: string | null;
-  descricao?: string | null;
-  tags?: unknown;
 };
 
 function tagsDaLinha(valor: unknown): string[] {
@@ -29,242 +33,187 @@ function tagsDaLinha(valor: unknown): string[] {
       .map((t) => t.trim())
       .filter(Boolean);
   }
+
   if (typeof valor === "string") {
     const trimmed = valor.trim();
     if (!trimmed) return [];
+
     try {
       const parsed = JSON.parse(trimmed) as unknown;
       if (Array.isArray(parsed)) {
-        return parsed
-          .filter((t): t is string => typeof t === "string")
-          .map((t) => t.trim())
-          .filter(Boolean);
+        return tagsDaLinha(parsed);
       }
     } catch {
-      /* não é JSON */
+      /* texto simples separado por virgula */
     }
+
     return trimmed
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
   }
+
   return [];
 }
 
-/** Converte uma linha da BD para o modelo usado na UI (`Projeto`). */
-function linhaParaProjeto(linha: LinhaPostsSupabase): Projeto {
+function linhaParaProjeto(linha: LinhaPostagemSupabase): Projeto {
   return {
     id: String(linha.id ?? ""),
-    nome: String(linha.title ?? ""),
+    nome: String(linha.nome ?? linha.title ?? ""),
     descricao: String(linha.descricao ?? linha.content ?? ""),
-    imagem: String(linha.image_url ?? ""),
+    imagem: String(linha.imagem ?? linha.image_url ?? ""),
     tags: tagsDaLinha(linha.tags),
   };
 }
 
-/** Campos da UI → colunas SQL (sem `id`; `author_id` é acrescentado no insert quando há sessão). */
-function camposProjetoParaColunas(
-  nome: string,
-  descricao: string,
-  imagemUrl: string,
-  tags: string[],
-): Record<string, unknown> {
+function postagemParaColunas(
+  postagem: ProjetoAntesDoSupabase,
+  imagemUrl: string | null,
+) {
   return {
-    title: nome,
-    descricao,
-    content: descricao,
-    image_url: imagemUrl.trim() === "" ? null : imagemUrl,
-    tags,
+    nome: postagem.nome,
+    descricao: postagem.descricao,
+    imagem: imagemUrl,
+    tags: postagem.tags,
   };
 }
 
-export function buscarPostagens() {
-  return supabase
-    .from("postagens")
-    .select("*")
-    .then(({ data, error }) => {
-      if (error) {
-        console.error("Erro ao buscar postagens", error.message);
-        return [];
-      }
-      console.log("Postagens recebidas do Supabase:", data);
-      return data;
-    });
+export async function buscarPostagens(): Promise<Projeto[]> {
+  const { data, error } = await supabase.from(TABLE_NAME).select("*");
+
+  if (error) {
+    console.error("Erro ao buscar postagens", error.message, error);
+    return [];
+  }
+
+  console.log("Postagens recebidas do Supabase:", data);
+  return ((data ?? []) as LinhaPostagemSupabase[]).map(linhaParaProjeto);
 }
 
 export async function criarPostagem(postagem: ProjetoAntesDoSupabase) {
   document.querySelector(".formulario-projeto")?.classList.add("enviando");
 
   try {
-    // If there's an image, upload it first
-    let urlImagem: string | null = null;
-    if (postagem.imagem) {
-      urlImagem = await enviarImagem(postagem.imagem);
-      if (!urlImagem) {
-        console.error("Não foi possível obter a URL da imagem!");
-        document.querySelector(".formulario-projeto")?.classList.remove("enviando");
-        return null;
-      }
+    const urlImagem = postagem.imagem ? await enviarImagem(postagem.imagem) : null;
+
+    if (postagem.imagem && !urlImagem) {
+      console.error("Não foi possível obter a URL da imagem!");
+      return null;
     }
 
-    const postagemParaSalvar = {
-      ...postagem,
-      imagem: urlImagem ?? postagem.imagem ?? null,
-    };
-
+    const postagemParaSalvar = postagemParaColunas(postagem, urlImagem);
     console.log("Enviando postagem para o Supabase:", postagemParaSalvar);
 
-    const { data, error } = await supabase.from("postagens").insert([postagemParaSalvar]);
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .insert([postagemParaSalvar])
+      .select();
+
     if (error) {
-      console.error("Erro ao criar uma nova postagem", error.message ?? error);
-      document.querySelector(".formulario-projeto")?.classList.remove("enviando");
+      console.error("Erro ao criar uma nova postagem", error.message, error);
+      alertaErroSupabase(
+        `Não foi possível criar a postagem na tabela "${TABLE_NAME}". Verifique as policies de RLS no Supabase.`,
+        error,
+      );
       return null;
     }
 
     console.log("Postagem criada com sucesso:", data);
-    document.querySelector(".formulario-projeto")?.classList.remove("enviando");
-    alert("Postagem criada com sucesso!");
     window.location.href = "/";
     return data;
-  } catch (e) {
-    console.error("Erro ao criar postagem:", e);
+  } finally {
     document.querySelector(".formulario-projeto")?.classList.remove("enviando");
-    return null;
   }
+}
 
-  return enviarImagem(postagem.imagem).then((urlImagem) => {
-    if (!urlImagem) {
-      document
-        .querySelector(".formulario-projeto")
-        ?.classList.remove("enviando");
-      console.error("Nao foi possivel obter a URL da imagem!");
-      return null;
-    }
+export async function enviarImagem(arquivo: File): Promise<string | null> {
+  const extFromName = arquivo.name.includes(".")
+    ? arquivo.name.split(".").pop()
+    : undefined;
+  const extFromType = arquivo.type.includes("/")
+    ? arquivo.type.split("/").pop()
+    : undefined;
+  const ext = (extFromName ?? extFromType ?? "bin").replace(/[^a-zA-Z0-9]/g, "");
+  const nomeUnico = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext || "bin"}`;
 
-    return inserirPostagem({
-      nome: postagem.nome,
-      descricao: postagem.descricao,
-      imagem: urlImagem,
-      tags: postagem.tags,
+  console.log("Enviando arquivo. nomeOriginal:", arquivo.name, "chaveUsada:", nomeUnico);
+
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(nomeUnico, arquivo, {
+      contentType: arquivo.type,
+      upsert: false,
     });
-  });
-}
 
-export async function enviarImagem(arquivo: File) {
-  // Create a safe filename for the storage key to avoid "Invalid key" errors
-  const extFromName = arquivo.name && arquivo.name.includes('.') ? arquivo.name.split('.').pop() : undefined;
-  const extFromType = arquivo.type && arquivo.type.includes('/') ? arquivo.type.split('/').pop() : undefined;
-  const ext = (extFromName ?? extFromType ?? 'bin').replace(/[^a-zA-Z0-9]/g, '') || 'bin';
-  const safeBase = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  const nomeUnico = `${safeBase}.${ext}`;
-  console.log('Enviando arquivo. nomeOriginal:', arquivo.name, 'chaveUsada:', nomeUnico);
-  try {
-    const { data, error } = await supabase.storage
-      .from("imagens")
-      .upload(nomeUnico, arquivo, { upsert: false, contentType: arquivo.type });
-
-    if (error) {
-      console.error("Erro ao enviar a imagem (upload):", error.message ?? error);
-      return null;
-    }
-    if (!data) {
-      console.error("Upload retornou sem dados:", data);
-      return null;
-    }
-
-    const getPublic = supabase.storage.from("imagens").getPublicUrl(nomeUnico);
-    // Different SDK versions return different shapes, so be defensive
-    const publicData = getPublic.data as { publicUrl?: string; publicURL?: string } | undefined;
-    const publicUrl = publicData?.publicUrl ?? publicData?.publicURL ?? null;
-    if (!publicUrl) {
-      console.error("Não foi possível obter a URL pública da imagem:", getPublic);
-      return null;
-    }
-
-    return publicUrl;
-  } catch (err) {
-    console.error("Exceção ao enviar a imagem:", err);
+  if (error || !data) {
+    console.error("Erro ao enviar a imagem", error?.message, error);
     return null;
   }
+
+  return supabase.storage.from(BUCKET_NAME).getPublicUrl(nomeUnico).data.publicUrl;
 }
 
-export function buscarPostagemPorId(id: string) {
-  return supabase
-    .from("postagens")
+export async function buscarPostagemPorId(id: string): Promise<Projeto | null> {
+  const { data, error } = await supabase
+    .from(TABLE_NAME)
     .select("*")
     .eq("id", id)
-    .single()
-    .then(({ data, error }) => {
-      if (error) {
-        console.error("Erro ao buscar o projeto", error.message);
-        return null;
-      }
+    .single();
 
-      return linhaParaProjeto(data as LinhaPostsSupabase);
-    });
+  if (error) {
+    console.error("Erro ao buscar o projeto", error.message, error);
+    return null;
+  }
+
+  return linhaParaProjeto(data as LinhaPostagemSupabase);
 }
 
-export function atualizarPostagem(id: string, novosDados: Projeto) {
+export async function atualizarPostagem(id: string, novosDados: Projeto) {
   document.querySelector(".formulario-projeto")?.classList.add("enviando");
-  const { id: _idLinha, ...campos } = novosDados;
-  const linha = camposProjetoParaColunas(
-    campos.nome,
-    campos.descricao,
-    campos.imagem,
-    campos.tags,
-  );
 
-  return supabase
-    .from("postagens")
-    .update(novosDados)
-    .eq("id", id)
-    .then(({ data, error }) => {
-      if (error) {
-        console.error(
-          "Não foi possível atualizar o projeto:",
-          error.message,
-          error,
-        );
-        alertaErroSupabase(
-          "Não foi possível atualizar o post. Se faltar a coluna `tags`, executa `supabase/posts-tags.sql` no SQL Editor.",
-          error,
-        );
-        document
-          .querySelector(".formulario-projeto")
-          ?.classList.remove("enviando");
-        return null;
-      }
-      document
-        .querySelector(".formulario-projeto")
-        ?.classList.remove("enviando");
-      window.location.href = "/";
-      return data;
-    });
+  const linha = {
+    nome: novosDados.nome,
+    descricao: novosDados.descricao,
+    imagem: novosDados.imagem || null,
+    tags: novosDados.tags,
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .update(linha)
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.error("Não foi possível atualizar o projeto:", error.message, error);
+      alertaErroSupabase(
+        `Não foi possível atualizar a postagem na tabela "${TABLE_NAME}".`,
+        error,
+      );
+      return null;
+    }
+
+    window.location.href = "/";
+    return data;
+  } finally {
+    document.querySelector(".formulario-projeto")?.classList.remove("enviando");
+  }
 }
 
-export function deletarPostagem(id: string) {
-  return supabase
-    .from("postagens")
-    .delete()
-    .eq("id", id)
-    .then(({ data, error }) => {
-      if (error) {
-        console.error("Erro ao deletar a postagem");
-        return null;
-      }
+export async function deletarPostagem(id: string): Promise<boolean> {
+  const { error, count } = await supabase
+    .from(TABLE_NAME)
+    .delete({ count: "exact" })
+    .eq("id", id);
 
   if (error) {
     console.error("Erro ao deletar a postagem:", error.message, error);
     return false;
   }
 
-  const apagadas = count ?? 0;
-  if (apagadas < 1) {
-    console.error(
-      "Nenhuma linha foi apagada (RLS a bloquear DELETE ou id inexistente). " +
-        "No Supabase, em SQL Editor, para testes podes usar por exemplo:\n" +
-        `CREATE POLICY "posts_delete_anon" ON ${TABLE_NAME} FOR DELETE TO anon USING (true);`,
-    );
+  if ((count ?? 0) < 1) {
+    console.error("Nenhuma postagem foi apagada. Verifique o id e as policies de DELETE no RLS.");
     return false;
   }
 

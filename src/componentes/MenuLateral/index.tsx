@@ -10,7 +10,7 @@ export default function MenuLateral() {
         <ul className="lista-sidebar">
           <li>
             <Link to="/" >
-              <img  className="logo"  src={Logo} alt="Logo do CodeConnect" />
+              <img  className="logo"  src={Logo} alt="Logo do Web Gonçalves" />
             </Link>
           </li>
              <li>

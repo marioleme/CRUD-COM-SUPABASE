@@ -15,7 +15,7 @@ export default function Layout() {
         </div>
         </section>
         <footer className="rodape">
-          <p>&copy; 2025 Gerenciador de Projetos Mario Oliveira</p>
+          <p>&copy; 2026 Gerenciador de Projetos Mario Gonçalves</p>
         </footer>
       
     </div>
