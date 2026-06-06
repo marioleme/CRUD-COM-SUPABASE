@@ -20,13 +20,15 @@ export default function Card({ id, imagemUrl, titulo, resumo, tags, deletar }: C
         <div className="conteudo__texto">
           <h3>{titulo}</h3>
           <p>{resumo}</p>
-          {tags && tags.length > 0 ? (
-            <ul className="card__tags" aria-label="Tags">
-              {tags.map((t) => (
-                <li key={t}>{t}</li>
+          {tags && tags.length > 0 && (
+            <div className="card__tags">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag-badge">
+                  {tag}
+                </span>
               ))}
-            </ul>
-          ) : null}
+            </div>
+          )}
         </div>
 
         <div className="conteudo__botoes">
