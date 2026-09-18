@@ -3,6 +3,7 @@ aside {
     padding: 2.5em 1em;
     width: 177px;
     border-radius: 8px;
+    flex: 0 0 177px;
 }
 
 .lista-sidebar {
@@ -19,6 +20,14 @@ aside {
     align-items: center;
     font-size: 22px;
     gap: 10px;
+}
+
+.sidebar-titulo {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
 }
 
 .item__link {
@@ -41,4 +50,33 @@ aside {
 .logo {
     width: auto;
     max-height: 120px;
+}
+
+@media (max-width: 768px) {
+    aside {
+        width: 100%;
+        flex-basis: auto;
+        padding: 1em;
+    }
+
+    .lista-sidebar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .sidebar-titulo {
+        width: 100%;
+        font-size: 18px;
+    }
+
+    .lista-sidebar li a {
+        font-size: 16px;
+    }
+
+    .logo {
+        max-height: 52px;
+    }
 }

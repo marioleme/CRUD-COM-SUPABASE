@@ -8,6 +8,7 @@ export default function MenuLateral() {
     <aside>
       <nav>
         <ul className="lista-sidebar">
+          <li className="sidebar-titulo">Gerenciador de Postagens</li>
           <li>
             <Link to="/" >
               <img  className="logo"  src={Logo} alt="Logo do Web Gonçalves" />

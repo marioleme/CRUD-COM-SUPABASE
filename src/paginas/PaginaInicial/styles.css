@@ -5,3 +5,9 @@
   gap: 24px;
   list-style: none;
 }
+
+@media (max-width: 768px) {
+  .lista-cards {
+    grid-template-columns: 1fr;
+  }
+}
