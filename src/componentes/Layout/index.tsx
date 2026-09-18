@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <div className="container">
       <header className="cabecalho">
-        <h1>Gerenciador de Projetos</h1>
+        <h1>Gerenciador de Postagens</h1>
       </header>
       <section className="conteudo">
         <MenuLateral />
@@ -15,7 +15,7 @@ export default function Layout() {
         </div>
         </section>
         <footer className="rodape">
-          <p>&copy; 2026 Gerenciador de Projetos Mario Gonçalves</p>
+          <p>&copy; 2026 Gerenciador de Postagens Mario Gonçalves</p>
         </footer>
       
     </div>

@@ -42,16 +42,27 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
   const [imagem, setImagem] = useState<File | null>(null);
   const [tags, setTags] = useState<string[]>(() => normalizarTags(projetoInicial?.tags));
 
-  /* Sincroniza só quando mudamos de registro (id), evitando reset ao trocar só a referência do objeto. */
+  const projetoInicialId = projetoInicial?.id;
+  const nomeInicial = projetoInicial?.nome || "";
+  const descricaoInicial = projetoInicial?.descricao || "";
+  const tagsIniciais = projetoInicial?.tags;
+
   useEffect(() => {
-    if (!projetoInicial) return;
-    setNome(projetoInicial.nome || "");
-    setDescricao(projetoInicial.descricao || "");
-    setTags(normalizarTags(projetoInicial.tags));
+    if (!projetoInicialId) return;
+    setNome(nomeInicial);
+    setDescricao(descricaoInicial);
+    setTags(normalizarTags(tagsIniciais));
     setImagem(null);
-  }, [projetoInicial?.id]);
+  }, [projetoInicialId, nomeInicial, descricaoInicial, tagsIniciais]);
   const [novaTag, setNovaTag] = useState("");
   const imagemProjetoInicial = projetoInicial?.imagem || null;
+
+  function separarTags(valor: string): string[] {
+    return valor
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
 
   function handleImagemChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
@@ -60,10 +71,15 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
   }
 
   function handleAdicionarTag() {
-    if (novaTag.trim() !== "" && !tags.includes(novaTag)) {
-      setTags([...tags, novaTag.trim()]);
-      setNovaTag("");
-    }
+    const tagsDigitadas = separarTags(novaTag);
+
+    if (tagsDigitadas.length === 0) return;
+
+    setTags((tagsAtuais) => {
+      const tagsAdicionadas = tagsDigitadas.filter((tag) => !tagsAtuais.includes(tag));
+      return [...tagsAtuais, ...new Set(tagsAdicionadas)];
+    });
+    setNovaTag("");
   }
 
   function handleRemoverTag(tag: string) {
@@ -72,24 +88,24 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    let tagsFinais = [...tags];
-    if (novaTag.trim() !== "" && !tags.includes(novaTag.trim())) {
-      tagsFinais.push(novaTag.trim());
-    }
-    onSubmit({ nome, descricao, imagem, tags: tagsFinais });
+    const tagsFinais = [
+      ...tags,
+      ...separarTags(novaTag).filter((tag) => !tags.includes(tag)),
+    ];
+    onSubmit({ nome, descricao, imagem, tags: [...new Set(tagsFinais)] });
   }
 
   return (
     <form onSubmit={handleSubmit} className="formulario-projeto">
       <div className="titulo">
-        <h2>{projetoInicial ? "Editar Projeto" : "Novo Projeto"}</h2>
+        <h2>{projetoInicial ? "Editar Postagem" : "Nova Postagem"}</h2>
    
       <div>
         <div>
           {imagemProjetoInicial ? (
             <img src={imagemProjetoInicial} alt="Preview" className="form-imagem" />
           ) : projetoInicial ? (
-            <span className="form-sem-imagem">Sem imagem neste projeto</span>
+            <span className="form-sem-imagem">Sem imagem nesta postagem</span>
           ) : (
             <span className="form-sem-imagem">
               Escolhe uma imagem para ver a pré-visualização
@@ -104,17 +120,17 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
       </div>
       <div>
         <label>
-          Nome do projeto
+          Nome da Postagem
           <input
             type="text"
-            placeholder="Nome do projeto"
+            placeholder="Nome da Postagem"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
           />
         </label>
 
         <label>
-          Descrição do projeto
+          Descrição da Postagem
           <textarea
             placeholder="Descrição"
             value={descricao}
@@ -127,7 +143,7 @@ export default function FormularioProjeto({ projetoInicial, onSubmit }: Formular
           <div style={{ display: "flex", gap: "8px" }}>
             <input
               type="text"
-              placeholder="Adicionar tag"
+              placeholder="Adicionar tags (separe com vírgula)"
               value={novaTag}
               onChange={(e) => setNovaTag(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAdicionarTag())}

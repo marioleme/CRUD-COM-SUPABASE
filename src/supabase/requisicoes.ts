@@ -161,7 +161,7 @@ export async function buscarPostagemPorId(id: string): Promise<Projeto | null> {
     .single();
 
   if (error) {
-    console.error("Erro ao buscar o projeto", error.message, error);
+    console.error("Erro ao buscar a postagem", error.message, error);
     return null;
   }
 
@@ -179,17 +179,28 @@ export async function atualizarPostagem(id: string, novosDados: Projeto) {
   };
 
   try {
-    const { data, error } = await supabase
+    const { data, error, count } = await supabase
       .from(TABLE_NAME)
-      .update(linha)
-      .eq("id", id)
-      .select();
+      .update(linha, { count: "exact" })
+      .eq("id", id);
 
     if (error) {
-      console.error("Não foi possível atualizar o projeto:", error.message, error);
+      console.error("Não foi possível atualizar a postagem:", error.message, error);
       alertaErroSupabase(
         `Não foi possível atualizar a postagem na tabela "${TABLE_NAME}".`,
         error,
+      );
+      return null;
+    }
+
+    if ((count ?? 0) < 1) {
+      const erroSemAlteracao = {
+        message: "Nenhuma postagem foi atualizada. Verifique o id e as policies de UPDATE no Supabase.",
+      };
+      console.error(erroSemAlteracao.message);
+      alertaErroSupabase(
+        `Não foi possível atualizar a postagem na tabela "${TABLE_NAME}".`,
+        erroSemAlteracao,
       );
       return null;
     }

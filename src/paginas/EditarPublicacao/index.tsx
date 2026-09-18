@@ -17,35 +17,27 @@ export default function EditarPublicacao() {
     });
   }, [id]);
 
-  function atualizarProjeto(projetoEnviado: ProjetoAntesDoSupabase) {
-    if (!projeto) return;
+  async function atualizarProjeto(projetoEnviado: ProjetoAntesDoSupabase) {
+    if (!id || !projeto) return;
 
-    const idAlvo = projeto.id;
+    let imagemUrl = projeto.imagem;
 
     if (projetoEnviado.imagem instanceof File) {
-      enviarImagem(projetoEnviado.imagem).then((urlDaImagem) => {
-        if (!urlDaImagem) {
-          console.error("Erro ao atualizar a imagem da publicação");
-          return;
-        }
-
-        const projetoAtualizado: Projeto = {
-          ...projetoEnviado,
-          id: idAlvo,
-          imagem: urlDaImagem,
-        };
-
-        atualizarPostagem(idAlvo, projetoAtualizado);
-      });
-    } else {
-      const projetoAtualizado: Projeto = {
-        ...projetoEnviado,
-        id: idAlvo,
-        imagem: projeto.imagem,
-      };
-
-      atualizarPostagem(idAlvo, projetoAtualizado);
+      const urlDaImagem = await enviarImagem(projetoEnviado.imagem);
+      if (!urlDaImagem) {
+        window.alert("Não foi possível atualizar a imagem da publicação.");
+        return;
+      }
+      imagemUrl = urlDaImagem;
     }
+
+    const projetoAtualizado: Projeto = {
+      ...projetoEnviado,
+      id,
+      imagem: imagemUrl,
+    };
+
+    await atualizarPostagem(id, projetoAtualizado);
   }
 
   return (
@@ -53,7 +45,7 @@ export default function EditarPublicacao() {
       {projeto ? (
         <FormularioProjeto projetoInicial={projeto} onSubmit={atualizarProjeto} />
       ) : (
-        <p>Carregando projeto...</p>
+        <p>Carregando postagem...</p>
       )}
     </div>
   );
