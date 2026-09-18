@@ -53,6 +53,9 @@
   font-size: 15px;
   font-weight: 400;
   line-height: 23px;
+  /* Mantém os Enters e espaços digitados na descrição. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .card__tags {
