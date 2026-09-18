@@ -11,6 +11,12 @@ type CardProps = {
 };
 
 export default function Card({ id, imagemUrl, titulo, resumo, tags, deletar }: CardProps) {
+  function confirmarExclusao() {
+    if (window.confirm("Tem certeza que deseja apagar esta postagem?")) {
+      deletar(id);
+    }
+  }
+
   return (
     <article className="card" id={id}>
       <div className="card__imagem">
@@ -35,7 +41,7 @@ export default function Card({ id, imagemUrl, titulo, resumo, tags, deletar }: C
           <Link to={`/editar-publicacao/${id}`} className="botao__editar">
             Editar
           </Link>
-          <button className="botao__deletar" onClick={() => deletar(id)}>
+          <button className="botao__deletar" onClick={confirmarExclusao}>
             Apagar
           </button>
         </div>
