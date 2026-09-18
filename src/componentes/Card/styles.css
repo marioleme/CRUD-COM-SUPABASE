@@ -89,6 +89,12 @@
   justify-content: space-between;
 }
 
+.conteudo__botoes > a,
+.conteudo__botoes > button {
+  min-width: 110px;
+  text-align: center;
+}
+
 .botao__visualizar {
   background-color: var(--verde-petroleo);
   color: var(--verde-destaque);
