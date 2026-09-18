@@ -31,7 +31,9 @@
 
 .card__conteudo {
   padding: 16px;
-  height: 100%;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card__link {
@@ -40,6 +42,7 @@
 }
 
 .conteudo__texto {
+  flex: 1;
   margin-bottom: 67px;
 }
 
