@@ -38,6 +38,9 @@ export default function Card({ id, imagemUrl, titulo, resumo, tags, deletar }: C
         </div>
 
         <div className="conteudo__botoes">
+          <Link to={`/postagem/${id}`} className="botao__visualizar">
+            Ver postagem
+          </Link>
           <Link to={`/editar-publicacao/${id}`} className="botao__editar">
             Editar
           </Link>

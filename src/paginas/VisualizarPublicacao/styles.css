@@ -1,0 +1,44 @@
+.pagina-postagem {
+  background-color: var(--cinza-escuro);
+  color: var(--cinza-claro);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.pagina-postagem h2 {
+  color: #fff;
+  font-size: 26px;
+  margin: 20px 0 16px;
+}
+
+.botao-voltar {
+  color: var(--verde-destaque);
+  text-decoration: none;
+}
+
+.postagem-imagem {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.postagem-descricao {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.postagem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.postagem-acoes {
+  margin-top: 28px;
+}

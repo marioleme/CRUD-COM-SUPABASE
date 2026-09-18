@@ -59,6 +59,10 @@
   /* Mantém os Enters e espaços digitados na descrição. */
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card__tags {
@@ -80,7 +84,26 @@
 
 .conteudo__botoes {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: space-between;
+}
+
+.botao__visualizar {
+  background-color: var(--verde-petroleo);
+  color: var(--verde-destaque);
+  border: 1px solid var(--verde-destaque);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--fonte);
+  text-decoration: none;
+}
+
+.botao__visualizar:hover {
+  background-color: var(--verde-destaque);
+  color: var(--cinza-escuro);
 }
 
 .botao__deletar {
