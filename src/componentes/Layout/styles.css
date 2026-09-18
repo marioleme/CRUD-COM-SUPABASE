@@ -6,12 +6,13 @@
 
 .conteudo {
   display: flex;
-
+  min-width: 0;
 }
 
 .conteudo-principal {
   flex-grow: 2;
   padding: 1em;
+  min-width: 0;
 }
 
 .rodape {

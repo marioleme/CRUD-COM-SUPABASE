@@ -6,6 +6,10 @@
   list-style: none;
 }
 
+.lista-cards li {
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
   .lista-cards {
     grid-template-columns: 1fr;

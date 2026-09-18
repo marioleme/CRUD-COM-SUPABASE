@@ -22,6 +22,7 @@ export default function MenuLateral() {
           </li>
           <li>
             <Link to="/nova-publicacao" className="item__link-publicacao">
+              <span className="menu-icone-criar" aria-hidden="true">+</span>
               Criar
             </Link>
           </li>
