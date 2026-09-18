@@ -171,6 +171,8 @@ export async function buscarPostagemPorId(id: string): Promise<Projeto | null> {
 export async function atualizarPostagem(id: string, novosDados: Projeto) {
   document.querySelector(".formulario-projeto")?.classList.add("enviando");
 
+  const idNormalizado = id.trim();
+
   const linha = {
     nome: novosDados.nome,
     descricao: novosDados.descricao,
@@ -182,7 +184,10 @@ export async function atualizarPostagem(id: string, novosDados: Projeto) {
     const { data, error, count } = await supabase
       .from(TABLE_NAME)
       .update(linha, { count: "exact" })
-      .eq("id", id);
+      .eq("id", idNormalizado)
+      // Retornar o id torna a checagem consistente entre ambientes e deixa
+      // claro quando o RLS filtrou a linha do UPDATE.
+      .select("id");
 
     if (error) {
       console.error("Não foi possível atualizar a postagem:", error.message, error);
@@ -193,7 +198,8 @@ export async function atualizarPostagem(id: string, novosDados: Projeto) {
       return null;
     }
 
-    if ((count ?? 0) < 1) {
+    const linhasAtualizadas = data?.length ?? count ?? 0;
+    if (linhasAtualizadas < 1) {
       const erroSemAlteracao = {
         message: "Nenhuma postagem foi atualizada. Verifique o id e as policies de UPDATE no Supabase.",
       };

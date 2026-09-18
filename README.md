@@ -137,6 +137,8 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
       ```env
       VITE_SUPABASE_URL="SUA_URL_DO_PROJETO_SUPABASE"
       VITE_SUPABASE_ANON_KEY="SUA_CHAVE_ANON_PUBLICA_SUPABASE"
+      VITE_SUPABASE_TABLE="posts"
+      VITE_SUPABASE_BUCKET="post-images"
       ```
     - Substitua os valores pelas suas credenciais.
 
